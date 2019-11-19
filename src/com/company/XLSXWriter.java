@@ -1,5 +1,6 @@
 package com.company;
 
+import org.apache.poi.ss.formula.functions.Column;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -9,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class XLSXWriter {
     String path;
@@ -113,6 +115,96 @@ public class XLSXWriter {
                     temp.createCell(0).setCellValue(contributors.get(i).getName());
                     temp.createCell(2).setCellValue(contributors.get(j).getName());
                     temp.createCell(3).setCellValue(0);
+                }
+            }
+        }
+
+        publish();
+    }
+
+    public void writePoemsMatrix() {
+        XLSXReader reader = new XLSXReader("C:\\Users\\Varun\\Desktop\\United Artists.xlsx");
+        ArrayList<UAPoem> poems = reader.getUAPoems();
+        UAPoem a,b;
+        XSSFSheet sheet = workbook.createSheet();
+        Row r;
+
+        for(int i = 0; i < poems.size(); i++){
+            r = sheet.createRow(i);
+            for(int j = 0; j < poems.size(); j++) {
+                r.createCell(j);
+            }
+        }
+
+        int counter;
+        double entry;
+        double beta = (0.15 * (1.0/170));
+        for(int i = 0; i < poems.size(); i++) {
+            a = poems.get(i);
+            counter = 0;
+            for(int j = 0; j < poems.size(); j++) {
+                b = poems.get(j);
+                if(a.getAuthor().equals(b.getAuthor()) || a.getVolume() == b.getVolume()) {
+                    counter++;
+                }
+            }
+            entry = (0.85 * (1.0/counter)) + beta;
+            System.out.println("Entry: " + entry + " Counter: " + counter);
+
+            for(int j = 0; j < poems.size(); j++) {
+                b = poems.get(j);
+                if(a.getAuthor().equals(b.getAuthor()) || a.getVolume() == b.getVolume()) {
+                    r = sheet.getRow(j);
+                    r.getCell(i).setCellValue(entry);
+                } else {
+                    r = sheet.getRow(j);
+                    r.getCell(i).setCellValue(beta);
+                }
+            }
+        }
+
+        publish();
+    }
+
+    public void writePoemsSheet() {
+        setupOnodoSheet();
+        XSSFSheet nodes = workbook.getSheetAt(0);
+        XSSFSheet relations = workbook.getSheetAt(1);
+        nodes.getRow(0).createCell(3).setCellValue("Poem Rank");
+        nodes.getRow(0).createCell(4).setCellValue("Size");
+
+        XLSXReader reader = new XLSXReader("C:\\Users\\Varun\\Desktop\\United Artists.xlsx");
+        ArrayList<UAPoem> poems = reader.getUAPoems();
+        reader = new XLSXReader("PoemMatrix.xlsx");
+        Matrix m = reader.getMatrix().getEigenvector(1000);
+        double[][] data = m.getData();
+        double[][] sorted = m.sortEigenvector().getData();
+
+        UAPoem a,b;
+        Row r;
+        int rank;
+
+        for(int i = 0; i < poems.size(); i++) {
+            r = nodes.createRow(i + 1);
+            a = poems.get(i);
+            rank = Arrays.asList(sorted).indexOf(data[i]) + 1;
+            System.out.println(rank);
+            r.createCell(0).setCellValue(a.getName());
+            r.createCell(1).setCellValue("Poem");
+            r.createCell(2).setCellValue("Volume: " + a.getVolume() + " Author: " + a.getAuthor() + " Rank: " + rank);
+            r.createCell(3).setCellValue(data[i][0]);
+            r.createCell(4).setCellValue(data[i][0] * 3000);
+        }
+
+        for(int i = 0; i < poems.size(); i++) {
+            a = poems.get(i);
+            for(int j = 0; j < poems.size(); j++) {
+                b = poems.get(j);
+                if(a.getAuthor().equals(b.getAuthor()) || a.getVolume() == b.getVolume()) {
+                    r = relations.createRow(relations.getLastRowNum() + 1);
+                    r.createCell(0).setCellValue(a.getName());
+                    r.createCell(2).setCellValue(b.getName());
+                    r.createCell(3).setCellValue(0);
                 }
             }
         }

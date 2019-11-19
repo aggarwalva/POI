@@ -86,4 +86,37 @@ public class XLSXReader {
         }
         return volumes;
     }
+
+    public ArrayList<UAPoem> getUAPoems() {
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        ArrayList<UAPoem> poems = new ArrayList<>();
+        UAPoem temp;
+        Row r;
+
+        for(int i = 1; i <= sheet.getLastRowNum(); i++) {
+            r = sheet.getRow(i);
+            temp = new UAPoem(r.getCell(1).getStringCellValue(), r.getCell(2).getStringCellValue(), (int) r.getCell(0).getNumericCellValue());
+            poems.add(temp);
+        }
+
+        return poems;
+    }
+
+    public Matrix getMatrix() {
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        int height = sheet.getLastRowNum() + 1;
+        int width = sheet.getRow(0).getPhysicalNumberOfCells();
+        double[][] data = new double[height][width];
+        Row r;
+
+        for(int i = 0; i < height; i++) {
+            r = sheet.getRow(i);
+            for(int j = 0; j < width; j++) {
+                data[i][j] = r.getCell(j).getNumericCellValue();
+            }
+        }
+
+        return new Matrix(data);
+    }
+
 }

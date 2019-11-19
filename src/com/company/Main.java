@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        writeCollabSheet();
+        writePoemsSheet();
     }
 
     public static void printContributors() {
@@ -36,6 +36,29 @@ public class Main {
         }
     }
 
+    public static void printPoems() {
+        ArrayList<UAPoem> poems;
+        XLSXReader reader = new XLSXReader("C:\\Users\\Varun\\Desktop\\United Artists.xlsx");
+        poems = reader.getUAPoems();
+
+        for(UAPoem poem : poems) {
+            System.out.println(poem.getName() + " " + poem.getVolume() + " " + poem.getAuthor());
+        }
+    }
+
+    public static void printMatrix() {
+        XLSXReader reader = new XLSXReader("PoemMatrix.xlsx");
+        Matrix m = reader.getMatrix();
+        m.printMatrix();
+    }
+
+    public static void printEigenvector() {
+        XLSXReader reader = new XLSXReader("PoemMatrix.xlsx");
+        Matrix m = reader.getMatrix();
+        Matrix e = m.getEigenvector(1000);
+        e.printMatrix();
+    }
+
     public static void writeVolumesSpreadsheet() {
         XLSXWriter writer = new XLSXWriter("VolumesSheet.xlsx");
         writer.writeVolumesSheet();
@@ -44,5 +67,25 @@ public class Main {
     public static void writeCollabSheet() {
         XLSXWriter writer = new XLSXWriter("CollabSheet.xlsx");
         writer.writeCollabSheet();
+    }
+
+    public static void writePoemsMatrix() {
+        XLSXWriter writer = new XLSXWriter("PoemMatrix.xlsx");
+        writer.writePoemsMatrix();
+    }
+
+    public static void writePoemsSheet() {
+        XLSXWriter writer = new XLSXWriter("PoemsSheet.xlsx");
+        writer.writePoemsSheet();
+    }
+
+    public static void matrixTest() {
+        double[][] aData = {{1,2}, {3,1}};
+        double[][] bData = {{2}, {3}};
+
+        Matrix a = new Matrix(aData);
+        Matrix b = new Matrix(bData);
+        Matrix c = a.multiply(b);
+        c.printMatrix();
     }
 }
