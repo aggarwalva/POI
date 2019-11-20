@@ -1,10 +1,15 @@
 package com.company;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class Main {
     public static void main(String[] args) {
-        writePoemsSheet();
+        printRanks();
     }
 
     public static void printContributors() {
@@ -58,6 +63,46 @@ public class Main {
         Matrix e = m.getEigenvector(1000);
         e.printMatrix();
     }
+
+    public static void printRanks() {
+        XLSXReader reader = new XLSXReader("PoemMatrix.xlsx");
+
+        Matrix m = reader.getMatrix();
+        Matrix e = m.getEigenvector(1000);
+        double[][] data = e.getData();
+        double[][] sorted = e.sortEigenvector().getData();
+
+        reader = new XLSXReader("C:\\Users\\Varun\\Desktop\\United Artists.xlsx");
+        ArrayList<UAPoem> poems = reader.getUAPoems();
+
+        int rank;
+        for(int i = 0; i < poems.size(); i++) {
+            rank = Arrays.asList(sorted).indexOf(data[i]) + 1;
+            poems.get(i).setRank(rank);
+        }
+
+        Collections.sort(poems, new Comparator<UAPoem>() {
+            @Override
+            public int compare(UAPoem o1, UAPoem o2) {
+                return o1.getRank() - o2.getRank();
+            }
+        });
+
+        for(UAPoem p : poems){
+            System.out.println("Name: " + p.getName() + ", Rank: " + p.getRank());
+        }
+
+        try {
+            FileWriter out = new FileWriter(new File("Ranks.txt"));
+            for(UAPoem p : poems){
+                out.write("Name: " + p.getName() + ", Rank: " + p.getRank() + "\n");
+            }
+            out.close();
+        } catch (Exception ex){
+            //do nothing
+        }
+    }
+
 
     public static void writeVolumesSpreadsheet() {
         XLSXWriter writer = new XLSXWriter("VolumesSheet.xlsx");

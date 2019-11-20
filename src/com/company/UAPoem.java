@@ -6,6 +6,7 @@ public class UAPoem {
     private String name;
     private String author;
     private int volume;
+    private int rank;
 
     public UAPoem(String name, String author, int volume) {
         this.name = name;
@@ -23,5 +24,13 @@ public class UAPoem {
 
     public int getVolume() {
         return volume;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    public int getRank() {
+        return rank;
     }
 }
